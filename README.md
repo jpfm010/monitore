@@ -1,19 +1,18 @@
 # Sentinela — Painel familiar
 
-Protótipo original de dashboard de controle parental transparente, com interface inspirada em padrões comuns de painéis de atividade. Não copia a marca ou o código proprietário do mSpy.
+Protótipo original de painel familiar transparente, com interface responsiva e backend inicial PHP 8.3 + MySQL/MariaDB.
 
-## O que existe no repositório
+## O que existe
 - Interface demonstrativa responsiva (HTML/CSS/JavaScript).
-- Backend inicial PHP 8.3 + MySQL/MariaDB em `backend/`.
-- Login por sessão, senha com hash, consultas preparadas e token CSRF para operações de alteração.
-- Cadastro administrativo de dispositivos com declaração de autorização e revogação do consentimento.
-- Registro de auditoria e API de eventos demonstrativos.
-- Página de login e dashboard servidos sob `backend/public`.
+- Login por sessão, hash de senha, consultas preparadas e token CSRF para operações de alteração.
+- Cadastro administrativo de dispositivos com declaração de autorização e revogação.
+- Registro de auditoria e API para eventos demonstrativos.
+- Instalador web PHP em `backend/public/install.php` para configuração inicial em domínio próprio.
 
-## Instalação local / aaPanel
-Leia primeiro [backend/README.md](backend/README.md). O Document Root recomendado é `backend/public`, com `backend/config.php` mantido fora da pasta pública. Importe `backend/schema.sql`, configure o arquivo privado de banco e crie o primeiro administrador pelo terminal com `php backend/create-admin.php`.
+## Instalação no domínio / aaPanel
+Leia [backend/README.md](backend/README.md). Resumo: crie um banco MySQL vazio e usuário dedicado no aaPanel, configure SSL/HTTPS, defina o Document Root para `backend/public`, acesse `https://SEU-DOMINIO/install.php`, preencha o formulário e depois **apague `backend/public/install.php` do servidor**. O instalador não cria banco no aaPanel nem configura DNS ou SSL.
 
-## Limitações atuais
-Este repositório ainda é uma base em desenvolvimento, não um produto pronto para produção. Não existe conexão real com WhatsApp, captura de mensagens, GPS, chamadas ou monitoramento oculto. Os dados de atividade apresentados são fictícios. Ainda faltam testes automatizados, hardening, limitação de tentativas de login, política de retenção, integração completa das telas de dispositivos com a API e revisão de segurança.
+## Limitações
+Este repositório ainda está em desenvolvimento, não é um produto pronto para produção. Não existe conexão real com WhatsApp, captura de mensagens, GPS, chamadas ou monitoramento oculto. Os dados de atividade são fictícios. Antes de produção faltam testes de integração, limitação de tentativas de login, política de retenção e exclusão, revisão de segurança e validação em ambiente de homologação.
 
-Qualquer futura integração deverá utilizar fontes oficiais/autorizadas, consentimento válido e transparência para as pessoas envolvidas.
+Qualquer integração futura deverá utilizar fontes oficiais/autorizadas, consentimento válido e transparência para as pessoas envolvidas.
