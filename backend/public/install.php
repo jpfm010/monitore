@@ -7,7 +7,7 @@ declare(strict_types=1);
  * Remova este arquivo após a instalação.
  */
 $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
-    || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
+;
 $isLocal = in_array($_SERVER['REMOTE_ADDR'] ?? '', ['127.0.0.1', '::1'], true);
 if (!$isHttps && !$isLocal) {
     http_response_code(400);
