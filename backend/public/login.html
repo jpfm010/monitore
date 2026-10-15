@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light"><title>Entrar — Sentinela</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+body{min-height:100vh;display:grid;place-items:center;background:#f3f5f9;padding:20px}.login-card{width:min(100%,440px);background:#fff;border:1px solid #e2e8f0;border-radius:18px;padding:30px;box-shadow:0 18px 50px #0f172a12}.login-brand{display:flex;align-items:center;gap:12px;margin-bottom:26px}.login-mark{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;background:#1d4ed8;color:white;font-size:24px;font-weight:800}.login-brand strong{display:block;font-size:22px}.login-brand small{color:#64748b;font-size:11px;letter-spacing:.12em}.login-card h1{font-size:25px;margin:0 0 8px}.login-card p{color:#64748b;line-height:1.5}.login-card label{display:block;font-weight:650;font-size:14px;margin:18px 0 6px}.login-card input{width:100%;padding:13px;border:1px solid #cbd5e1;border-radius:9px;font:inherit}.login-card button{width:100%;margin-top:20px;padding:13px;border:0;border-radius:9px;background:#1d4ed8;color:#fff;font:inherit;font-weight:700;cursor:pointer}.login-card button:disabled{opacity:.65;cursor:wait}.login-error{display:none;margin-top:16px;padding:12px;border-radius:9px;background:#fef2f2;color:#991b1b;font-size:14px}.login-note{margin-top:22px;padding:12px;background:#f8fafc;border-radius:9px;font-size:13px!important}.login-footer{text-align:center;font-size:12px;margin-top:18px;color:#64748b}
+</style>
+</head>
+<body>
+<main class="login-card">
+<div class="login-brand"><span class="login-mark">S</span><span><strong>sentinela</strong><small>PAINEL FAMILIAR</small></span></div>
+<h1>Entrar na sua conta</h1><p>Use as credenciais administrativas definidas durante a instalação.</p>
+<form id="loginForm">
+<label for="email">E-mail</label><input id="email" name="email" type="email" autocomplete="username" maxlength="190" required>
+<label for="password">Senha</label><input id="password" name="password" type="password" autocomplete="current-password" required>
+<button id="submitButton" type="submit">Entrar com segurança</button>
+<div id="loginError" class="login-error" role="alert" aria-live="polite"></div>
+</form>
+<p class="login-note">As telas de mensagens, chamadas e localização são demonstrativas. Esta versão não conecta nem monitora telefones.</p>
+<div class="login-footer">Sentinela · Controle familiar transparente</div>
+</main>
+<script src="login.js"></script>
+</body></html>
