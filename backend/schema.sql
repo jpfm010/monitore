@@ -1,0 +1,59 @@
+CREATE TABLE IF NOT EXISTS users (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(120) NOT NULL,
+  email VARCHAR(190) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  role ENUM('admin','guardian') NOT NULL DEFAULT 'guardian',
+  active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS devices (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  owner_user_id BIGINT UNSIGNED NOT NULL,
+  label VARCHAR(120) NOT NULL,
+  platform VARCHAR(80) NOT NULL,
+  status ENUM('pending','authorized','revoked') NOT NULL DEFAULT 'pending',
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_devices_owner FOREIGN KEY (owner_user_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_devices_owner_status (owner_user_id, status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS consent_records (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  device_id BIGINT UNSIGNED NOT NULL,
+  recorded_by_user_id BIGINT UNSIGNED NOT NULL,
+  consent_scope VARCHAR(500) NOT NULL,
+  consent_version VARCHAR(40) NOT NULL,
+  confirmed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  revoked_at TIMESTAMP NULL DEFAULT NULL,
+  CONSTRAINT fk_consent_device FOREIGN KEY (device_id) REFERENCES devices(id) ON DELETE CASCADE,
+  CONSTRAINT fk_consent_user FOREIGN KEY (recorded_by_user_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_consent_device_current (device_id, revoked_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS activity_events (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  device_id BIGINT UNSIGNED NOT NULL,
+  event_type VARCHAR(60) NOT NULL,
+  summary VARCHAR(240) NOT NULL,
+  source ENUM('demo','authorized_integration','manual') NOT NULL DEFAULT 'demo',
+  occurred_at DATETIME NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_events_device FOREIGN KEY (device_id) REFERENCES devices(id) ON DELETE CASCADE,
+  INDEX idx_events_device_time (device_id, occurred_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS audit_logs (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT UNSIGNED NULL,
+  action VARCHAR(100) NOT NULL,
+  target_type VARCHAR(60) NULL,
+  target_id BIGINT UNSIGNED NULL,
+  ip_hash CHAR(64) NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_audit_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+  INDEX idx_audit_user_time (user_id, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
