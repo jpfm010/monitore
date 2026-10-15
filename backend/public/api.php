@@ -150,6 +150,25 @@ if ($action === 'devices' && $method === 'POST') {
     respond(201, ['device' => ['id' => $deviceId, 'label' => $label, 'platform' => $platform, 'status' => 'authorized'], 'notice' => 'Cadastro administrativo salvo. Nenhum telefone foi conectado nem monitorado.']);
 }
 
+
+if ($action === 'devices-revoke' && $method === 'POST') {
+    requireCsrf();
+    $input = bodyJson();
+    $deviceId = filter_var($input['device_id'] ?? null, FILTER_VALIDATE_INT);
+    if (!$deviceId || $deviceId < 1) respond(422, ['error' => 'ID de dispositivo inválido.']);
+    $stmt = $pdo->prepare('SELECT id FROM devices WHERE id = ? AND owner_user_id = ? LIMIT 1');
+    $stmt->execute([$deviceId, $userId]);
+    if (!$stmt->fetch()) respond(404, ['error' => 'Dispositivo não encontrado.']);
+    $pdo->beginTransaction();
+    $stmt = $pdo->prepare("UPDATE devices SET status = 'revoked' WHERE id = ? AND owner_user_id = ?");
+    $stmt->execute([$deviceId, $userId]);
+    $stmt = $pdo->prepare('UPDATE consent_records SET revoked_at = CURRENT_TIMESTAMP WHERE device_id = ? AND recorded_by_user_id = ? AND revoked_at IS NULL');
+    $stmt->execute([$deviceId, $userId]);
+    audit($pdo, $userId, 'device.consent_revoked', 'device', $deviceId);
+    $pdo->commit();
+    respond(200, ['ok' => true, 'device_id' => $deviceId, 'notice' => 'Autorização revogada no cadastro. Nenhuma conexão externa foi encerrada porque esta versão não conecta a telefones.']);
+}
+
 if ($action === 'events' && $method === 'GET') {
     $deviceId = filter_input(INPUT_GET, 'device_id', FILTER_VALIDATE_INT);
     $stmt = $pdo->prepare('SELECT id, label FROM devices WHERE owner_user_id = ? AND id = ?');
