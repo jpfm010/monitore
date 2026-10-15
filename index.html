@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101827">
+  <title>Sentinela — Painel familiar</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#" aria-label="Sentinela início">
+        <span class="brand-mark">S</span><span><strong>sentinela</strong><small>PAINEL FAMILIAR</small></span>
+      </a>
+      <div class="profile-switch">
+        <div class="avatar avatar-blue">JP</div>
+        <div class="profile-copy"><strong>João Paulo</strong><small>Conta demonstrativa</small></div>
+        <span class="chevron">⌄</span>
+      </div>
+      <nav class="navigation" aria-label="Navegação principal">
+        <p class="nav-label">VISÃO GERAL</p>
+        <button class="nav-item active" data-view="overview"><span>▦</span> Painel inicial</button>
+        <button class="nav-item" data-view="devices"><span>▣</span> Dispositivos <em>1</em></button>
+        <p class="nav-label">ATIVIDADES</p>
+        <button class="nav-item" data-view="messages"><span>▤</span> Mensagens <em>4</em></button>
+        <button class="nav-item" data-view="calls"><span>◷</span> Chamadas</button>
+        <button class="nav-item" data-view="locations"><span>⌖</span> Localização</button>
+        <button class="nav-item" data-view="apps"><span>▧</span> Aplicativos</button>
+        <button class="nav-item" data-view="web"><span>◎</span> Atividade na web</button>
+        <p class="nav-label">CONTA</p>
+        <button class="nav-item" data-view="settings"><span>⚙</span> Privacidade e ajustes</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="privacy-note"><span class="privacy-icon">✓</span><div><strong>Privacidade em primeiro lugar</strong><small>Dados fictícios neste protótipo.</small></div></div>
+        <div class="sidebar-footer">SENTINELA · PROTÓTIPO 0.1</div>
+      </div>
+    </aside>
+    <main class="main-content">
+      <header class="topbar">
+        <button class="mobile-menu" id="mobileMenu" aria-label="Abrir menu">☰</button>
+        <div class="breadcrumb">Painel familiar <span>/</span> <strong id="pageTitle">Painel inicial</strong></div>
+        <div class="top-actions"><span class="demo-pill"><i></i> MODO DEMONSTRAÇÃO</span><button class="icon-button" id="helpButton" aria-label="Ajuda">?</button><div class="avatar avatar-small">JP</div></div>
+      </header>
+      <div class="page-wrap">
+        <section class="welcome-row">
+          <div><p class="eyebrow">QUINTA-FEIRA, 15 DE OUTUBRO</p><h1 id="heading">Visão geral</h1><p class="subheading">Um resumo claro das atividades do dispositivo autorizado.</p></div>
+          <button class="button button-secondary" id="refreshButton"><span>↻</span> Atualizar painel</button>
+        </section>
+        <div class="demo-banner"><span class="banner-symbol">ⓘ</span><div><strong>Ambiente demonstrativo</strong><p>Todos os perfis, conversas, registros e locais exibidos são fictícios. Este painel não acessa nem monitora nenhum telefone real.</p></div><button id="dismissBanner" aria-label="Fechar aviso">×</button></div>
+        <section id="view-overview" class="view active-view">
+          <div class="section-heading"><div><h2>Resumo de atividade</h2><p>Dados de exemplo do dispositivo “Android da família”.</p></div><span class="period-select">Últimas 24 horas⌄</span></div>
+          <div class="stats-grid">
+            <article class="stat-card"><div class="stat-top"><span class="stat-icon icon-violet">▤</span><span class="trend neutral">DADOS DE EXEMPLO</span></div><p class="stat-label">Mensagens registradas</p><div class="stat-value">128</div><p class="stat-foot">96 recebidas · 32 enviadas</p></article>
+            <article class="stat-card"><div class="stat-top"><span class="stat-icon icon-green">◷</span><span class="trend positive">+5,2%</span></div><p class="stat-label">Chamadas</p><div class="stat-value">12</div><p class="stat-foot">8 recebidas · 4 efetuadas</p></article>
+            <article class="stat-card"><div class="stat-top"><span class="stat-icon icon-blue">▧</span><span class="trend neutral">7 ATIVOS</span></div><p class="stat-label">Aplicativos utilizados</p><div class="stat-value">7</div><p class="stat-foot">Em 3h 42min de uso</p></article>
+            <article class="stat-card"><div class="stat-top"><span class="stat-icon icon-orange">⌖</span><span class="trend positive">Autorizado</span></div><p class="stat-label">Última localização</p><div class="stat-value stat-location">Casa</div><p class="stat-foot">Exemplo · hoje às 08:42</p></article>
+          </div>
+          <div class="content-grid">
+            <article class="panel activity-panel"><div class="panel-heading"><div><h3>Atividade recente</h3><p>Eventos fictícios para visualizar o funcionamento.</p></div><button class="text-button" data-goto="messages">Ver mensagens →</button></div><div class="activity-list" id="activityList"></div></article>
+            <article class="panel device-panel"><div class="panel-heading"><div><h3>Dispositivo conectado</h3><p>Status de exemplo</p></div><span class="status-dot">● Demonstração</span></div><div class="device-illustration"><div class="phone-frame"><div class="phone-speaker"></div><div class="phone-screen"><div class="phone-wallpaper">S</div><div class="phone-caption">Android familiar</div><div class="phone-status">Bateria 84%</div></div></div></div><div class="device-details"><div><span>Dispositivo</span><strong>Android da família</strong></div><div><span>Última sincronização</span><strong>Somente dados fictícios</strong></div><div><span>Modo de acesso</span><strong class="safe-label">Consentimento necessário</strong></div></div><button class="button button-outline full-button" data-goto="devices">Ver detalhes do dispositivo</button></article>
+          </div>
+          <div class="panel insight-panel"><div class="insight-icon">✦</div><div><h3>Orientação familiar</h3><p>Use os dados de exemplo para explorar o painel. Em uma implantação real, qualquer coleta deverá ser transparente, autorizada, protegida e limitada às funções legais de controle parental.</p></div></div>
+        </section>
+        <section id="view-devices" class="view"><div class="section-heading"><div><h2>Dispositivos</h2><p>Gerencie dispositivos cadastrados com autorização.</p></div><button class="button button-primary" id="addDevice">＋ Cadastrar dispositivo</button></div><article class="panel table-panel"><div class="table-row table-head"><span>DISPOSITIVO</span><span>PLATAFORMA</span><span>STATUS</span><span>ACESSO</span></div><div class="table-row"><span class="table-device"><span class="mini-device">▣</span><span><strong>Android da família</strong><small>Identificador fictício: DEMO-001</small></span></span><span>Android (demo)</span><span><i class="status-dot"></i> Demonstração</span><span><span class="tag">Não conectado</span></span></div></article><div class="empty-hint">Este protótipo não instala aplicativos nem estabelece conexão com dispositivos.</div></section>
+        <section id="view-messages" class="view"><div class="section-heading"><div><h2>Mensagens</h2><p>Conversas de demonstração — nenhuma mensagem real é acessada.</p></div><label class="search-box"><span>⌕</span><input id="messageSearch" type="search" placeholder="Buscar conversa..."></label></div><div class="messages-layout"><article class="panel conversation-list" id="conversationList"></article><article class="panel conversation-detail" id="conversationDetail"><div class="empty-conversation"><span>▤</span><h3>Selecione uma conversa</h3><p>As conversas são totalmente fictícias e servem apenas para demonstrar a interface.</p></div></article></div></section>
+        <section id="view-calls" class="view"><div class="section-heading"><div><h2>Registro de chamadas</h2><p>Lista ilustrativa de chamadas, com dados inventados.</p></div></div><article class="panel table-panel" id="callsTable"></article></section>
+        <section id="view-locations" class="view"><div class="section-heading"><div><h2>Localização</h2><p>Exemplo visual sem localização real ou GPS ativo.</p></div></div><article class="panel map-placeholder"><div class="map-grid"><div class="map-road road-one"></div><div class="map-road road-two"></div><div class="map-road road-three"></div><div class="map-park"></div><div class="map-pin">⌖</div><div class="map-label">Local fictício · Casa</div></div><div class="map-info"><span class="stat-icon icon-orange">⌖</span><div><h3>Casa (local de exemplo)</h3><p>Último registro fictício · hoje às 08:42</p><small>Uma versão real só deve usar localização com autorização e permissões explícitas.</small></div></div></article></section>
+        <section id="view-apps" class="view"><div class="section-heading"><div><h2>Aplicativos</h2><p>Exemplo de resumo de uso de aplicativos.</p></div></div><article class="panel app-list" id="appsList"></article></section>
+        <section id="view-web" class="view"><div class="section-heading"><div><h2>Atividade na web</h2><p>Histórico ilustrativo; não existe navegação real conectada.</p></div></div><article class="panel table-panel" id="webTable"></article></section>
+        <section id="view-settings" class="view"><div class="section-heading"><div><h2>Privacidade e ajustes</h2><p>Princípios de transparência e segurança do projeto.</p></div></div><article class="panel settings-card"><div class="settings-row"><div><h3>Coleta transparente</h3><p>O produto deverá explicar quais dados são coletados, para quê e por quanto tempo.</p></div><span class="tag tag-green">Obrigatório</span></div><div class="settings-row"><div><h3>Consentimento e autorização</h3><p>Cadastro de dispositivo deve exigir autorização válida do responsável e respeitar a legislação aplicável.</p></div><span class="tag tag-green">Obrigatório</span></div><div class="settings-row"><div><h3>Segurança da conta</h3><p>Planejar autenticação forte, sessões seguras, controle de acesso e registro de auditoria.</p></div><span class="tag tag-blue">Planejado</span></div><div class="settings-row"><div><h3>Dados de demonstração</h3><p>O protótipo usa dados locais fictícios e não envia dados pessoais para um servidor.</p></div><span class="tag tag-green">Ativo</span></div></article></section>
+        <footer class="page-footer"><span>© 2026 Sentinela · Protótipo independente</span><span>Feito para controle parental transparente</span></footer>
+      </div>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
