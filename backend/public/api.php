@@ -82,13 +82,26 @@ if ($action === 'login' && $method === 'POST') {
     $email = filter_var(trim((string)($input['email'] ?? '')), FILTER_VALIDATE_EMAIL);
     $password = (string)($input['password'] ?? '');
     if (!$email || $password === '' || strlen($password) > 1024) respond(422, ['error' => 'Informe e-mail e senha válidos.']);
+    // Limite básico de tentativas por IP e e-mail; complementa, mas não substitui,
+    // rate limiting no proxy/WAF em ambiente de produção.
+    $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    $ipHash = hash('sha256', $ip . (getenv('SENTINELA_RATE_LIMIT_SALT') ?: 'configure-um-salt-no-servidor'));
+    $rate = $pdo->prepare('SELECT COUNT(*) FROM login_attempts WHERE ip_hash = ? AND email = ? AND attempted_at >= (CURRENT_TIMESTAMP - INTERVAL 15 MINUTE)');
+    $rate->execute([$ipHash, strtolower((string)$email)]);
+    if ((int)$rate->fetchColumn() >= 8) {
+        respond(429, ['error' => 'Muitas tentativas de acesso. Aguarde 15 minutos e tente novamente.']);
+    }
     $stmt = $pdo->prepare('SELECT id, name, email, password_hash, role FROM users WHERE email = ? AND active = 1 LIMIT 1');
     $stmt->execute([$email]);
     $user = $stmt->fetch();
     if (!$user || !password_verify($password, $user['password_hash'])) {
+        $record = $pdo->prepare('INSERT INTO login_attempts (ip_hash, email) VALUES (?, ?)');
+        $record->execute([$ipHash, strtolower((string)$email)]);
         usleep(250000);
         respond(401, ['error' => 'E-mail ou senha incorretos.']);
     }
+    $clearAttempts = $pdo->prepare('DELETE FROM login_attempts WHERE ip_hash = ? AND email = ?');
+    $clearAttempts->execute([$ipHash, strtolower((string)$email)]);
     session_regenerate_id(true);
     $_SESSION['user_id'] = (int)$user['id'];
     $_SESSION['csrf'] = bin2hex(random_bytes(32));
@@ -133,10 +146,10 @@ if ($action === 'devices' && $method === 'POST') {
     $platform = trim((string)($input['platform'] ?? ''));
     $confirmed = ($input['consent_confirmed'] ?? false) === true;
     $scope = trim((string)($input['consent_scope'] ?? ''));
-    if (mb_strlen($label) < 2 || mb_strlen($label) > 120 || mb_strlen($platform) < 2 || mb_strlen($platform) > 80) {
+    if (strlen($label) < 2 || strlen($label) > 120 || strlen($platform) < 2 || strlen($platform) > 80) {
         respond(422, ['error' => 'Nome e plataforma devem ter tamanho válido.']);
     }
-    if (!$confirmed || mb_strlen($scope) < 10 || mb_strlen($scope) > 500) {
+    if (!$confirmed || strlen($scope) < 10 || strlen($scope) > 500) {
         respond(422, ['error' => 'Confirme a autorização válida e descreva o escopo do consentimento.']);
     }
     $pdo->beginTransaction();
