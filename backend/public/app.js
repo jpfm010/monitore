@@ -59,7 +59,62 @@ $("#mobileMenu").addEventListener("click",()=>$("#sidebar").classList.toggle("op
 $("#refreshButton").addEventListener("click",()=>{renderActivity();showToast("Painel demonstrativo atualizado. Nenhum dispositivo foi consultado.")});
 $("#dismissBanner").addEventListener("click",()=>$(".demo-banner").remove());
 $("#helpButton").addEventListener("click",()=>showToast("Este é um protótipo local com dados fictícios."));
-$("#addDevice").addEventListener("click",()=>showToast("Cadastro real ainda não implementado. Nenhum dispositivo foi conectado."));
+async function loadDevices(){
+  const host = document.querySelector("#view-devices .table-panel");
+  if (!host) return;
+  host.replaceChildren();
+  const heading = document.createElement("div");
+  heading.className = "table-row table-head";
+  ["DISPOSITIVO","PLATAFORMA","STATUS","AÇÕES"].forEach(label=>{const cell=document.createElement("span");cell.textContent=label;heading.appendChild(cell);});
+  host.appendChild(heading);
+  try {
+    const response = await fetch("api.php?action=devices", {credentials:"same-origin",headers:{"Accept":"application/json"}});
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Não foi possível carregar os dispositivos.");
+    if (!data.devices.length) {
+      const empty = document.createElement("p"); empty.className="empty-hint"; empty.textContent="Nenhum dispositivo cadastrado. O cadastro não conecta nem monitora um telefone."; host.appendChild(empty); return;
+    }
+    data.devices.forEach(device=>{
+      const row=document.createElement("div"); row.className="table-row";
+      const name=document.createElement("span"); name.className="table-device";
+      const nameText=document.createElement("strong"); nameText.textContent=device.label;
+      const meta=document.createElement("small"); meta.textContent="Cadastro #"+device.id;
+      name.append(nameText,meta);
+      const platform=document.createElement("span"); platform.textContent=device.platform;
+      const status=document.createElement("span"); status.textContent=device.status==="revoked"?"Autorização revogada":device.status==="authorized"?"Autorização declarada":"Pendente";
+      const actions=document.createElement("span");
+      if(device.status!=="revoked"){
+        const revoke=document.createElement("button"); revoke.type="button"; revoke.className="button button-secondary"; revoke.textContent="Revogar";
+        revoke.addEventListener("click",()=>revokeDevice(device.id)); actions.appendChild(revoke);
+      } else { actions.textContent="Sem autorização"; }
+      row.append(name,platform,status,actions); host.appendChild(row);
+    });
+  } catch(error) { showToast(error.message || "Erro ao consultar a API."); }
+}
+async function revokeDevice(deviceId){
+  if(!window.confirm("Revogar a autorização registrada para este cadastro? Isso não desconecta um telefone, pois não há conexão com dispositivos nesta versão.")) return;
+  try {
+    const response=await fetch("api.php?action=devices-revoke",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json","X-CSRF-Token":window.SENTINELA_CSRF||""},body:JSON.stringify({device_id:deviceId})});
+    const data=await response.json();
+    if(!response.ok) throw new Error(data.error||"Não foi possível revogar.");
+    showToast(data.notice||"Autorização revogada."); await loadDevices();
+  } catch(error) { showToast(error.message||"Erro ao revogar autorização."); }
+}
+$("#addDevice").addEventListener("click",async()=>{
+  const label=window.prompt("Nome identificador do dispositivo (ex.: Celular da família):");
+  if(label===null) return;
+  const platform=window.prompt("Plataforma (ex.: Android, iOS):");
+  if(platform===null) return;
+  const scope=window.prompt("Descreva a autorização e o escopo permitido (isso será registrado como declaração, não verificado pelo sistema):");
+  if(scope===null) return;
+  if(!window.confirm("Confirmo que tenho autorização válida para cadastrar este dispositivo e que a pessoa responsável foi informada. O cadastro não conecta nem monitora o telefone.")) return;
+  try {
+    const response=await fetch("api.php?action=devices",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json","X-CSRF-Token":window.SENTINELA_CSRF||""},body:JSON.stringify({label,platform,consent_scope:scope,consent_confirmed:true})});
+    const data=await response.json();
+    if(!response.ok) throw new Error(data.error||"Não foi possível cadastrar.");
+    showToast(data.notice||"Cadastro salvo."); await loadDevices();
+  } catch(error) { showToast(error.message||"Erro ao cadastrar dispositivo."); }
+});
 $("#messageSearch").addEventListener("input",e=>renderConversations(e.target.value));
 renderActivity();renderConversations();renderCalls();renderApps();renderWeb();
 
@@ -71,3 +126,6 @@ if (logoutButton) logoutButton.addEventListener('click', async () => {
     else showToast('Não foi possível encerrar a sessão. Atualize e tente novamente.');
   } catch (_) { showToast('Erro de conexão ao encerrar a sessão.'); }
 });
+
+// Carrega apenas os cadastros administrativos protegidos pela sessão.
+loadDevices();
