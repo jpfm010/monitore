@@ -109,6 +109,8 @@ if ($action === 'logout' && $method === 'POST') {
     respond(200, ['ok' => true]);
 }
 
+if ($action === 'health' && $method === 'GET') respond(200, ['ok' => true, 'service' => 'sentinela-api', 'mode' => 'initial']);
+
 $userId = requireUser();
 if ($action === 'me' && $method === 'GET') {
     $stmt = $pdo->prepare('SELECT id, name, email, role, created_at FROM users WHERE id = ? AND active = 1');
@@ -158,5 +160,4 @@ if ($action === 'events' && $method === 'GET') {
     respond(200, ['events' => $stmt->fetchAll(), 'notice' => 'Somente eventos demonstrativos são retornados nesta versão.']);
 }
 
-if ($action === 'health' && $method === 'GET') respond(200, ['ok' => true, 'service' => 'sentinela-api', 'mode' => 'initial']);
 respond(404, ['error' => 'Rota não encontrada.']);
