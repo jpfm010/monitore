@@ -133,6 +133,18 @@ if ($action === 'me' && $method === 'GET') {
     respond(200, ['user' => $user, 'csrf' => $_SESSION['csrf'] ?? null]);
 }
 
+if ($action === 'dashboard' && $method === 'GET') {
+    $stmt = $pdo->prepare("SELECT COUNT(*) AS total, SUM(status = 'authorized') AS authorized, SUM(status = 'revoked') AS revoked FROM devices WHERE owner_user_id = ?");
+    $stmt->execute([$userId]);
+    $devices = $stmt->fetch() ?: ['total' => 0, 'authorized' => 0, 'revoked' => 0];
+    $stmt = $pdo->prepare('SELECT COUNT(*) FROM consent_records c INNER JOIN devices d ON d.id = c.device_id WHERE d.owner_user_id = ? AND c.revoked_at IS NULL');
+    $stmt->execute([$userId]);
+    $consents = (int)$stmt->fetchColumn();
+    $stmt = $pdo->prepare('SELECT id, action, target_type, target_id, created_at FROM audit_logs WHERE user_id = ? ORDER BY id DESC LIMIT 8');
+    $stmt->execute([$userId]);
+    respond(200, ['devices' => ['total' => (int)$devices['total'], 'authorized' => (int)$devices['authorized'], 'revoked' => (int)$devices['revoked']], 'active_consents' => $consents, 'real_events' => 0, 'recent_actions' => $stmt->fetchAll(), 'notice' => 'Contagens reais do cadastro. Mensagens, chamadas, localização e uso de apps não estão integrados.']);
+}
+
 if ($action === 'devices' && $method === 'GET') {
     $stmt = $pdo->prepare('SELECT id, label, platform, status, created_at, updated_at FROM devices WHERE owner_user_id = ? ORDER BY id DESC');
     $stmt->execute([$userId]);
