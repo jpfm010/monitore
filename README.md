@@ -1,23 +1,19 @@
-# Sentinela — Painel familiar (protótipo)
+# Sentinela — Painel familiar
 
-Protótipo original de interface de controle parental, inspirado em padrões comuns de dashboards de atividade. Não copia marca, textos ou recursos proprietários do mSpy.
+Protótipo original de dashboard de controle parental transparente, com interface inspirada em padrões comuns de painéis de atividade. Não copia a marca ou o código proprietário do mSpy.
 
-## Estado atual
-- Interface responsiva em HTML, CSS e JavaScript puro.
-- Navegação para visão geral, dispositivos, mensagens fictícias, chamadas, localização fictícia, aplicativos, atividade web e privacidade.
-- Pesquisa nas conversas de demonstração.
-- Todos os dados são inventados e ficam no navegador.
-- Nenhuma conexão com WhatsApp, GPS, telefone, rede externa de monitoramento ou coleta remota está implementada.
+## O que existe no repositório
+- Interface demonstrativa responsiva (HTML/CSS/JavaScript).
+- Backend inicial PHP 8.3 + MySQL/MariaDB em `backend/`.
+- Login por sessão, senha com hash, consultas preparadas e token CSRF para operações de alteração.
+- Cadastro administrativo de dispositivos com declaração de autorização e revogação do consentimento.
+- Registro de auditoria e API de eventos demonstrativos.
+- Página de login e dashboard servidos sob `backend/public`.
 
-## Executar
-Abra `index.html` em um navegador moderno. Não exige build ou dependências.
+## Instalação local / aaPanel
+Leia primeiro [backend/README.md](backend/README.md). O Document Root recomendado é `backend/public`, com `backend/config.php` mantido fora da pasta pública. Importe `backend/schema.sql`, configure o arquivo privado de banco e crie o primeiro administrador pelo terminal com `php backend/create-admin.php`.
 
-## Próximas etapas
-1. Definir requisitos e limites legais de um produto de controle parental transparente.
-2. Implementar autenticação e gestão de consentimento/autorização.
-3. Criar API e banco de dados com minimização, retenção limitada e auditoria.
-4. Integrar somente fontes de dados oficiais ou autorizadas, com permissões explícitas.
-5. Adicionar testes, hardening de segurança e revisão de privacidade antes de qualquer implantação.
+## Limitações atuais
+Este repositório ainda é uma base em desenvolvimento, não um produto pronto para produção. Não existe conexão real com WhatsApp, captura de mensagens, GPS, chamadas ou monitoramento oculto. Os dados de atividade apresentados são fictícios. Ainda faltam testes automatizados, hardening, limitação de tentativas de login, política de retenção, integração completa das telas de dispositivos com a API e revisão de segurança.
 
-## Limites
-Este protótipo não acessa conversas reais nem permite monitoramento oculto. A interface é demonstrativa e não deve ser apresentada como produto pronto para produção.
+Qualquer futura integração deverá utilizar fontes oficiais/autorizadas, consentimento válido e transparência para as pessoas envolvidas.
