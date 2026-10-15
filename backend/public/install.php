@@ -95,24 +95,35 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 
                 $check = $pdo->query('SELECT COUNT(*) FROM users')->fetchColumn();
                 if ((int)$check > 0) throw new RuntimeException('A tabela users já contém contas. Use um banco vazio para uma instalação nova.');
-                $stmt = $pdo->prepare('INSERT INTO users (name, email, password_hash, role, active) VALUES (?, ?, ?, ?, 1)');
-                $stmt->execute([$adminName, $adminEmail, password_hash($adminPassword, PASSWORD_DEFAULT), 'admin']);
 
-                $configText = "<?php\ndeclare(strict_types=1);\n\nreturn " . var_export($config, true) . ";\n";
+                // Mantém a criação do administrador transacional e limpa arquivos parciais em caso de falha.
+                $pdo->beginTransaction();
                 $tmpPath = $configPath . '.tmp';
-                if (file_put_contents($tmpPath, $configText, LOCK_EX) === false) throw new RuntimeException('Não foi possível gravar a configuração.');
-                @chmod($tmpPath, 0640);
-                if (!rename($tmpPath, $configPath)) {
+                $configCreated = false;
+                $lockCreated = false;
+                try {
+                    $stmt = $pdo->prepare('INSERT INTO users (name, email, password_hash, role, active) VALUES (?, ?, ?, ?, 1)');
+                    $stmt->execute([$adminName, $adminEmail, password_hash($adminPassword, PASSWORD_DEFAULT), 'admin']);
+
+                    $configText = "<?php\ndeclare(strict_types=1);\n\nreturn " . var_export($config, true) . ";\n";
+                    if (file_put_contents($tmpPath, $configText, LOCK_EX) === false) throw new RuntimeException('Não foi possível gravar a configuração.');
+                    @chmod($tmpPath, 0640);
+                    if (!rename($tmpPath, $configPath)) throw new RuntimeException('Não foi possível finalizar a configuração.');
+                    $configCreated = true;
+                    @chmod($configPath, 0640);
+
+                    $lockContents = 'Instalado em UTC: ' . gmdate('c') . PHP_EOL;
+                    if (file_put_contents($lockPath, $lockContents, LOCK_EX) === false) throw new RuntimeException('Não foi possível gravar o marcador de instalação.');
+                    $lockCreated = true;
+                    @chmod($lockPath, 0640);
+                    $pdo->commit();
+                } catch (Throwable $installError) {
+                    if ($pdo->inTransaction()) $pdo->rollBack();
                     @unlink($tmpPath);
-                    throw new RuntimeException('Não foi possível finalizar a configuração.');
+                    if ($lockCreated) @unlink($lockPath);
+                    if ($configCreated) @unlink($configPath);
+                    throw $installError;
                 }
-                @chmod($configPath, 0640);
-                $lockContents = 'Instalado em UTC: ' . gmdate('c') . PHP_EOL;
-                if (file_put_contents($lockPath, $lockContents, LOCK_EX) === false) {
-                    @unlink($configPath);
-                    throw new RuntimeException('Não foi possível gravar o marcador de instalação.');
-                }
-                @chmod($lockPath, 0640);
                 unset($dbPass, $adminPassword);
                 page('Instalação concluída', 'Banco conectado, tabelas criadas e conta administrativa inicial criada. Por segurança, remova backend/public/install.php do servidor agora. Em seguida, abra login.html e entre com o e-mail e a senha definidos. A instalação não conecta nem monitora telefones.', true);
             } catch (Throwable $e) {
