@@ -56,9 +56,31 @@ function renderWeb(){$("#webTable").innerHTML='<div class="table-row table-head"
 $$(".nav-item").forEach(b=>b.addEventListener("click",()=>navigate(b.dataset.view)));
 $$("[data-goto]").forEach(b=>b.addEventListener("click",()=>navigate(b.dataset.goto)));
 $("#mobileMenu").addEventListener("click",()=>$("#sidebar").classList.toggle("open"));
-$("#refreshButton").addEventListener("click",()=>{renderActivity();showToast("Painel demonstrativo atualizado. Nenhum dispositivo foi consultado.")});
+$("#refreshButton").addEventListener("click",async()=>{await loadDashboard();await loadDevices();
+loadDashboard();showToast("Dados do cadastro atualizados. Integrações de telefone não estão conectadas.")});
 $("#dismissBanner").addEventListener("click",()=>$(".demo-banner").remove());
 $("#helpButton").addEventListener("click",()=>showToast("Este é um protótipo local com dados fictícios."));
+async function loadDashboard(){
+  try {
+    const response=await fetch("api.php?action=dashboard",{credentials:"same-origin",headers:{"Accept":"application/json"}});
+    const data=await response.json();
+    if(!response.ok) throw new Error(data.error||"Não foi possível carregar o resumo.");
+    $("#metricDevices").textContent=String(data.devices.total);
+    $("#metricDevicesFoot").textContent=data.devices.authorized+" autorizados · "+data.devices.revoked+" revogados";
+    $("#metricConsents").textContent=String(data.active_consents);
+    $("#metricEvents").textContent=String(data.real_events);
+    $("#metricActions").textContent=String(data.recent_actions.length);
+    const activity=$("#activityList");
+    if(activity){
+      if(!data.recent_actions.length){activity.innerHTML='<div class="empty-hint">Nenhuma ação administrativa registrada ainda.</div>';return;}
+      activity.innerHTML=data.recent_actions.map(item=>'<div class="activity-item"><span class="activity-icon icon-blue">✓</span><div class="activity-copy"><strong>'+escapeHtml(item.action)+'</strong><small>'+(item.target_type?escapeHtml(item.target_type)+' #'+escapeHtml(String(item.target_id||'')):'Ação da conta')+'</small></div><span class="activity-time">'+escapeHtml(item.created_at)+'</span></div>').join("");
+    }
+  } catch(error) {
+    ["#metricDevices","#metricConsents","#metricActions"].forEach(selector=>{const el=$(selector);if(el)el.textContent="—";});
+    showToast(error.message||"Erro ao carregar o resumo.");
+  }
+}
+function escapeHtml(value){return String(value).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));}
 async function loadDevices(){
   const host = document.querySelector("#view-devices .table-panel");
   if (!host) return;
